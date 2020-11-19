@@ -3,7 +3,16 @@ import pygame
 
 
 class Cell:
+
     def __init__(self, i, j, size, font):
+        hidden = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\hidden.png')
+        self.hidden = pygame.transform.scale(hidden, (45, 45))
+        unhidden = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\unhidden.png')
+        self.unhidden = pygame.transform.scale(unhidden, (45, 45))
+        flaged = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\flag.png')
+        self.flaged = pygame.transform.scale(flaged, (45, 45))
+        bomb = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\bomb.png')
+        self.bomb = pygame.transform.scale(bomb, (45, 45))
         self.text = None
         self.is_flagged = False
         self.index = i
@@ -38,8 +47,8 @@ class Cell:
     def prep(self, tile_array):
         self.pals = self.get_pals(tile_array)
         self.text = "B"
+        count = 0
         if not self.is_bomb:
-            count = 0
             for pal in self.pals:
                 if pal.is_bomb:
                     count += 1
@@ -47,15 +56,33 @@ class Cell:
                 self.text = str(count)
             else:
                 self.text = ""
-        self.text_surf = self.font.render(self.text, False, (0, 0, 0))
+        color = (0, 0, 0)
+        if count == 1:
+            color = blue
+        elif count == 2:
+            color = dark_green
+        elif count == 3:
+            color = red
+        elif count == 4:
+            color = dark_blue
+        elif count == 5:
+            color = dark_red
+        self.text_surf = self.font.render(self.text, False, color)
         rect = self.text_surf.get_rect()
         rect.center = (self.x, self.y)
         return
 
     def render(self, scr):
-        pygame.draw.rect(scr, self.color, (self.x, self.y, self.size, self.size), 0)
         if self.is_revealed:
-            scr.blit(self.text_surf, (self.x + self.size / 3, self.y - self.size / 10))
+            if self.is_bomb:
+                scr.blit(self.bomb, (self.x, self.y))
+            else:
+                scr.blit(self.unhidden, (self.x, self.y))
+                scr.blit(self.text_surf, (self.x + self.size / 3, self.y - self.size / 10))
+        elif self.is_flagged:
+            scr.blit(self.flaged, (self.x, self.y))
+        else:
+            scr.blit(self.hidden, (self.x, self.y))
         return
 
     def reveal(self):
@@ -80,4 +107,5 @@ class Cell:
         else:
             self.color = green
         return
+
     pass
