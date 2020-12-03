@@ -9,7 +9,6 @@ from AI import move
 # todo: add 4 difficulties (test, easy, med, hard), fix solver and make it work
 
 
-
 import numpy as np
 
 
@@ -79,17 +78,21 @@ if __name__ == "__main__":
     scr_size = 800
     scr = pygame.display.set_mode((scr_size, scr_size))
     size = 20
-    total_mines = 100
+    total_mines = 6
     tile_array = np.empty((size, size), Cell)
     for i in range(size):
         for j in range(size):
-            tile_array[i][j] = Cell(i, j, scr_size / size, font)
+            tile_array[j][i] = Cell(j, i, scr_size / size, font)
     end = time() - start
     print(f"boot time - {end} secs")
     preped = False
-    # chosen = move(tile_array)
-    # prep(chosen)
-    # chosen.reveal()
+    # fx = randint(0, len(tile_array) - 1)
+    # fy = randint(0, len(tile_array[fx]) - 1)
+    # first = tile_array[fx][fy]
+    # # IMPORTANT!!
+    # # tile_array[row][col]
+    # prep(first)
+    # first.reveal()
     while True:
         start = time()
         # move(tile_array)
@@ -106,6 +109,7 @@ if __name__ == "__main__":
                         win = False
             if win:
                 print("WIN")
+                exit()
         pygame.display.update()
         end = time() - start
-        print(f"frame time - {end} seconds - {1 / end} frames")
+        # print(f"frame time - {end} seconds - {1 / end} frames")

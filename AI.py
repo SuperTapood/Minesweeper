@@ -1,46 +1,40 @@
-from random import randint
-
-first = True
-move_count = 0
-
-def reveal(tile):
-    pass
+from board import Board
+import numpy as np
 
 
-def move(current_board):
-    global first, move_count
-    if first:
-        first = False
-        i = randint(0, len(current_board) - 1)
-        j = randint(0, len(current_board[i]) - 1)
-        return current_board[i][j]
-    move_count += 1
-    if move_count >= 2:
-        return
-    for arr in current_board:
-        for tile in arr:
-            if tile.is_revealed and tile.text != "":
-                pals = tile.get_pals(current_board)
-                left_bombs = int(tile.text)
-                undis_pals = 0
-                for pal in pals:
-                    if not pal.is_revealed:
-                        undis_pals += 1
-                if left_bombs == undis_pals:
-                    for pal in pals:
-                        if not pal.is_revealed:
-                            pal.flag()
+def find_active_board(tile_array):
+    # find the active cells in the board:
+    out = []
+    for row in tile_array:
+        for tile in row:
+            if tile.is_revealed or tile.is_flagged:
+                out.append(tile)
+    return out
 
-    for arr in current_board:
-        for tile in arr:
-            if tile.is_revealed and tile.text != "":
-                pals = tile.get_pals(current_board)
-                left_bombs = int(tile.text)
-                flag_pals = 0
-                for pal in pals:
-                    if not pal.is_flagged:
-                        flag_pals += 1
-                if left_bombs == flag_pals:
-                    for pal in pals:
-                        if not pal.is_revealed:
-                            pal.reveal()
+
+def move(tile_array):
+    active_cells = find_active_board(tile_array)
+    boards = Board(active_cells, tile_array).generate_boards()
+    total = len(boards)
+    probs = np.zeros(boards[0][0].size)
+    for board in boards:
+        for i in range(len(board)):
+            for j in range(len(board[i])):
+                if board[i][j].is_flagged:
+                    probs[i][j] += 1
+    max_prob = 0
+    cell = None
+    for i in range(len(probs)):
+        for j in range(len(probs[i])):
+            if probs[i][j] > max_prob:
+                max_prob = probs[i][j]
+                cell = (i, j)
+    i, j = cell
+    return tile_array[i][j]
+
+
+
+
+
+
+

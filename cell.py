@@ -15,18 +15,18 @@ class Cell:
         self.bomb = pygame.transform.scale(bomb, (45, 45))
         self.text = None
         self.is_flagged = False
-        self.index = i
-        self.jdex = j
+        self.column = i
+        self.row = j
         self.size = int(size)
         self.font = font
         self.color = grey
         self.is_bomb = False
         self.pals = []
         self.is_revealed = False
-        self.x = self.index * self.size
-        self.y = self.jdex * self.size
+        self.x = self.column * self.size
+        self.y = self.row * self.size
         self.text_surf = None
-        # TODO: give value, blitting system (text render), get neighbors, reveal function
+        self.prob = 0
         return
 
     def get_pals(self, tile_array):
@@ -34,9 +34,9 @@ class Cell:
         for i in range(-1, 2, 1):
             for j in range(-1, 2, 1):
                 try:
-                    assert self.index + i >= 0
-                    assert self.jdex + j >= 0
-                    pals.append(tile_array[self.index + i][self.jdex + j])
+                    assert self.column + i >= 0
+                    assert self.row + j >= 0
+                    pals.append(tile_array[self.column + i][self.row + j])
                 except IndexError as e:
                     pass
                 except AssertionError as e:
@@ -98,7 +98,7 @@ class Cell:
         return
 
     def get_loc(self):
-        return [self.index, self.jdex]
+        return [self.column, self.row]
 
     def flag(self):
         self.is_flagged = not self.is_flagged
@@ -107,5 +107,4 @@ class Cell:
         else:
             self.color = green
         return
-
     pass
