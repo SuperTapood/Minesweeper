@@ -1,7 +1,6 @@
 from colors import *
 import pygame
 
-
 class Cell:
 
     def __init__(self, i, j, size, font):
@@ -26,6 +25,7 @@ class Cell:
         self.x = self.column * self.size
         self.y = self.row * self.size
         self.text_surf = None
+        self.probs = []
         self.prob = 0
         return
 
