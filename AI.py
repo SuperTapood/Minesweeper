@@ -3,8 +3,8 @@ from random import choice
 
 def move(board):
     global flags, reveals
-    for row in board:
-        for tile in row:
+    for col in board:
+        for tile in col:
             if tile.is_revealed:
                 if tile.text != "":
                     hidden = []
@@ -31,8 +31,8 @@ def move(board):
 
 def move_rand(board):
     hidden = []
-    for row in board:
-        for tile in row:
+    for col in board:
+        for tile in col:
             if not tile.is_revealed:
                 hidden.append(tile)
     chosen = choice(hidden)

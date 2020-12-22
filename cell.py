@@ -1,5 +1,7 @@
 from colors import *
 import pygame
+from numpy import abs
+
 
 class Cell:
 
@@ -25,8 +27,7 @@ class Cell:
         self.x = self.column * self.size
         self.y = self.row * self.size
         self.text_surf = None
-        self.probs = []
-        self.prob = 0
+        self.pred = 0
         return
 
     def get_pals(self, tile_array):
@@ -37,12 +38,30 @@ class Cell:
                     assert self.column + i >= 0
                     assert self.row + j >= 0
                     pals.append(tile_array[self.column + i][self.row + j])
-                except IndexError as e:
+                except IndexError:
                     pass
-                except AssertionError as e:
+                except AssertionError:
                     pass
-        pals.remove(self)
+        if self in pals:
+            pals.remove(self)
         return pals
+
+    def get_pals_v2(self, tile_array):
+        # basically a dynamic way to get this tile's pals
+        # it's slower but will work on any size of board
+        pals = []
+        for col in tile_array:
+            for tile in col:
+                if self.is_near(tile):
+                    pals.append(tile)
+        return pals
+
+    def is_near(self, tile):
+        if abs(self.column - tile.column) == 1:
+            return True
+        if abs(self.row - tile.row) == 1:
+            return True
+        return False
 
     def prep(self, tile_array):
         self.pals = self.get_pals(tile_array)
@@ -107,4 +126,5 @@ class Cell:
         else:
             self.color = green
         return
+
     pass

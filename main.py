@@ -4,10 +4,8 @@ from cell import Cell
 from math import *
 from random import *
 from time import time, sleep
-from AI import move, move_rand
-
-# todo: add 4 difficulties (test, easy, med, hard), fix solver and make it work
-
+# from AI import move, move_rand
+from AIV2 import move
 
 import numpy as np
 
@@ -38,8 +36,8 @@ def prep(first):
         i, j = opts[index]
         opts.pop(index)
         tile_array[i][j].is_bomb = True
-    for arr in tile_array:
-        for tile in arr:
+    for col in tile_array:
+        for tile in col:
             tile.prep(tile_array)
     return
 
@@ -54,7 +52,7 @@ def detect_events():
         # if event.type == pygame.MOUSEBUTTONDOWN:
         #     x_cell = int(mouse_pos[0] // (scr_size / size))
         #     y_cell = int(mouse_pos[1] // (scr_size / size))
-        #     chosen = tile_array[x_cell][y_cell]
+        #     chosen = board[x_cell][y_cell]
         #     if pygame.mouse.get_pressed()[0]:
         #         if not chosen.is_revealed and not chosen.is_flagged:
         #             if not preped:
@@ -63,7 +61,7 @@ def detect_events():
         #             chosen.reveal()
         #             if chosen.is_bomb:
         #                 print("DEAD")
-        #                 for arr in tile_array:
+        #                 for arr in board:
         #                     for tile in arr:
         #                         tile.reveal()
         #     elif pygame.mouse.get_pressed()[2]:
@@ -79,7 +77,7 @@ def detect_events():
     #         chosen.reveal()
     #         if chosen.is_bomb:
     #             print("DEAD")
-    #             for arr in tile_array:
+    #             for arr in board:
     #                 for tile in arr:
     #                     tile.reveal()
     # elif state == 2:
@@ -89,14 +87,22 @@ def detect_events():
     return
 
 
-def did_win(tile_array):
-    for arr in tile_array:
-        for tile in arr:
+def did_win(board):
+    for col in board:
+        for tile in col:
             if tile.is_bomb and not tile.is_flagged:
                 return False
             if not tile.is_bomb and tile.is_flagged:
                 return False
     return True
+
+
+def did_lose(board):
+    for col in board:
+        for tile in col:
+            if tile.is_bomb and tile.is_revealed:
+                return True
+    return False
 
 
 if __name__ == "__main__":
@@ -114,7 +120,7 @@ if __name__ == "__main__":
             for j in range(size):
                 tile_array[j][i] = Cell(j, i, scr_size / size, font)
         # # IMPORTANT!!
-        # # tile_array[row][col]
+        # # board[col][row]
         prep(tile_array[10][10])
         tile_array[10][10].reveal()
         while True:
@@ -124,14 +130,19 @@ if __name__ == "__main__":
             if did_win(tile_array):
                 print("WIN")
                 break
+            elif did_lose(tile_array):
+                print("LOST")
             sleep(0.01)
-            moved, curpos = move(board=tile_array)
+            moved, curpos = move(tile_array, scr, size, scr_size)
             if moved == "False":
-                print("STUCK")
-                curpos = move_rand(board=tile_array)
-            elif moved == "B":
-                print("LOSE")
+                print("so many boards")
                 break
+            # if moved == "False":
+            #     print("STUCK")
+            #     curpos = move_rand(board=tile_array)
+            # elif moved == "B":
+            #     print("LOSE")
+            #     break
             x, y = curpos
             scr.blit(cursor, (x * 40 + 10, y * 40 + 10))
             pygame.display.update()
