@@ -4,10 +4,26 @@ from cell import Cell
 from math import *
 from random import *
 from time import time, sleep
-# from AI import move, move_rand
 from AIV2 import move
 
 import numpy as np
+
+
+def freeze():
+    global tile_array, scr, size, scr_size
+    while True:
+        for a in tile_array:
+            for t in a:
+                t.render(scr)
+        for k in range(size):
+            pygame.draw.line(scr, black, (k * int(scr_size / size), 0),
+                             (k * int(scr_size / size), scr_size), 2)
+            pygame.draw.line(scr, black, (0, k * int(scr_size / size)),
+                             (scr_size, k * int(scr_size / size)), 2)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                exit()
+        pygame.display.update()
 
 
 def render():
@@ -31,7 +47,7 @@ def prep(first):
     opts.remove(first.get_loc())
     for cell in first.get_pals(tile_array):
         opts.remove(cell.get_loc())
-    for n in range(total_mines):
+    for _ in range(mines):
         index = int(floor(uniform(0, len(opts))))
         i, j = opts[index]
         opts.pop(index)
@@ -105,15 +121,43 @@ def did_lose(board):
     return False
 
 
+def reveal_all(tiles):
+    for col in tiles:
+        for tile in col:
+            tile.reveal()
+    return
+
+
+def is_all_revealed(board):
+    for col in board:
+        for tile in col:
+            if not tile.is_revealed and not tile.is_flagged:
+                return False
+    return True
+
+
+def reset_board(board):
+    for col in board:
+        for tile in col:
+            tile.is_revealed = False
+            tile.is_flagged = False
+    return
+
+
 if __name__ == "__main__":
+    diffs = {}
     pygame.init()
     font = pygame.font.SysFont('Comic Sans MS', 30)
     scr_size = 800
     scr = pygame.display.set_mode((scr_size, scr_size))
-    size = 20
-    total_mines = 60
+    size = int(scr_size / 40)
+    mines_percentage = 15
+    mines = int((mines_percentage / 100) * (size * size))
+    mines = 60
     cursor = pygame.image.load("imgs/cursor.png")
     cursor = pygame.transform.scale(cursor, (28, 40))
+    lost = 0
+    win = 0
     while True:
         tile_array = np.empty((size, size), Cell)
         for i in range(size):
@@ -121,21 +165,35 @@ if __name__ == "__main__":
                 tile_array[j][i] = Cell(j, i, scr_size / size, font)
         # # IMPORTANT!!
         # # board[col][row]
-        prep(tile_array[10][10])
-        tile_array[10][10].reveal()
+        prep(tile_array[int(size / 2)][int(size / 2)])
+        tile_array[int(size / 2)][int(size / 2)].reveal()
         while True:
             scr.fill(white)
             detect_events()
             render()
             if did_win(tile_array):
                 print("WIN")
+                win += 1
+                try:
+                    print(f"win lose ratio: {win / lost}")
+                except:
+                    pass
                 break
             elif did_lose(tile_array):
                 print("LOST")
-            sleep(0.01)
+                lost += 1
+                try:
+                    print(f"win lose ratio: {win / lost}")
+                except:
+                    pass
+                break
             moved, curpos = move(tile_array, scr, size, scr_size)
             if moved == "False":
                 print("so many boards")
+                break
+            elif moved == "unsolve":
+                print("board is unsolvable?")
+                freeze()
                 break
             # if moved == "False":
             #     print("STUCK")

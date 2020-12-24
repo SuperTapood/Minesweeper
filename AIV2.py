@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 from colors import *
 from AI import move as mov
+from random import choice
 
 
 def freeze(tile_array, scr, size, scr_size):
@@ -53,10 +54,9 @@ def set_board(inc, sus):
 
 def is_valid_board(truth, board) -> bool:
     for t in truth:
-        bombs = int(t.text)
-        for pal in t.get_pals(board):
-            if pal.is_flagged or pal.pred == 1:
-                bombs -= 1
+        bombs = int(t.text) - sum(
+            1 for pal in t.get_pals(board) if pal.is_flagged or pal.pred == 1
+        )
         if bombs != 0:
             return False
     return True
@@ -69,31 +69,26 @@ def reset_board(sus):
 
 
 def increment(inc):
-    for i in range(len(inc) - 1, -1, -1):
-        if inc[i] == 0:
+    for i in range(len(inc)):
+        if inc[i] == 1:
+            inc[i] = 0
+        else:
             inc[i] = 1
             return inc
-        elif inc[i] == 1:
-            inc[i] = 0
     return None
 
 
 def copy_board(inc):
-    arr = []
-    for i in inc:
-        arr.append(i)
-    return arr
+    return [i for i in inc]
 
 
 def get_probs(boards):
     probs = []
     for j in range(len(boards[0])):
-        prob = 0
-        for i in range(len(boards)):
-            prob += boards[i][j]
+        prob = sum(boards[i][j] for i in range(len(boards)))
         probs.append(prob)
-    for i in range(len(probs)):
-        probs[i] /= len(boards)
+    for prob_ in probs:
+        prob_ /= len(boards)
     return probs
 
 
@@ -130,15 +125,17 @@ def move(board, scr, size, scr_size):
         sus = []
         for t in truthers:
             for pal in t.get_pals(board):
-                if not pal.is_revealed and not pal.is_flagged:
-                    if pal not in sus:
-                        sus.append(pal)
-        if len(sus) > 15:
+                if (
+                    not pal.is_revealed
+                    and not pal.is_flagged
+                    and pal not in sus
+                ):
+                    sus.append(pal)
+        if len(sus) > 20:
             return "False", (0, 0)
-        inc = []
-        for i in range(len(sus)):
-            inc.append(0)
+        inc = [0 for _ in sus]
         boards = []
+        log = []
         while True:
             set_board(inc, sus)
             if is_valid_board(truthers, board):
@@ -147,6 +144,15 @@ def move(board, scr, size, scr_size):
             inc = increment(inc)
             if inc is None:
                 break
+        assert len(sus) > 0
+        assert len(truthers) > 0
+        try:
+            assert len(boards) > 0
+        except AssertionError:
+            # all probs are equal
+            chosen = choice(sus)
+            chosen.reveal()
+            return True, chosen.get_loc()
         probs = get_probs(boards)
         best = get_best_guess(probs, sus)
         return True, best.get_loc()
