@@ -6,13 +6,13 @@ from numpy import abs
 class Cell:
 
     def __init__(self, i, j, size, font):
-        hidden = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\hidden.png')
+        hidden = pygame.image.load(r'imgs\hidden.png')
         self.hidden = pygame.transform.scale(hidden, (45, 45))
-        unhidden = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\unhidden.png')
+        unhidden = pygame.image.load(r'imgs\unhidden.png')
         self.unhidden = pygame.transform.scale(unhidden, (45, 45))
-        flaged = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\flag.png')
+        flaged = pygame.image.load(r'imgs\flag.png')
         self.flaged = pygame.transform.scale(flaged, (45, 45))
-        bomb = pygame.image.load(r'C:\Users\yoavo\Documents\GitHub\Minesweeper\imgs\bomb.png')
+        bomb = pygame.image.load(r'imgs\bomb.png')
         self.bomb = pygame.transform.scale(bomb, (45, 45))
         self.text = None
         self.is_flagged = False
